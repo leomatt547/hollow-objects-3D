@@ -1,0 +1,237 @@
+body {
+  margin: 0;
+  font-family: "Helvetica", sans-serif;
+}
+/*switch*/
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.saklar {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.saklar:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+input:checked + .saklar {
+  background-color: #2196f3;
+}
+
+input:focus + .saklar {
+  box-shadow: 0 0 1px #2196f3;
+}
+
+input:checked + .saklar:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline-style: none;
+  text-transform: uppercase;
+  margin: 10px 0;
+}
+.flex {
+  display: flex;
+}
+#content {
+  flex-basis: 80%;
+  height: 100vh;
+  border-left: 1px solid #13064e;
+  width: 80%;
+}
+.sidebar {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  flex-basis: 20%;
+}
+.menu-button {
+  width: 80%;
+  display: flex;
+  position: fixed;
+  top: 0;
+  right: 0;
+  justify-content: right;
+}
+.menu-button button {
+  flex-basis: 2;
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: #13064e;
+  color: white;
+  border-radius: 2px;
+}
+.menu-title {
+  font-weight: bold;
+  border-bottom: 1px solid #13064e;
+}
+.action {
+  width: 100%;
+  display: flex;
+  margin: 0 auto;
+}
+.action button {
+  background-color: #13064e;
+  border-radius: 2.5px;
+  padding: 10px;
+  margin: 10px;
+  color: white;
+  flex-grow: 1;
+}
+.camera-angle,
+.position,
+.scale {
+  display: flex;
+  flex-direction: column;
+}
+.rotation {
+  display: flex;
+  flex-direction: column;
+}
+#help-button {
+  background-color: #13064e;
+  border-radius: 2.5px;
+  padding: 10px;
+  margin: 10px 0;
+  color: white;
+}
+#color-pallete {
+  width: 50%;
+  height: 10%;
+}
+.camera-angle label,
+.position label,
+.rotation label,
+.scale label {
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+table {
+  font-size: 12px;
+}
+
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 25px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.modal {
+  height: 1000px;
+  overflow-y: auto;
+}
+
+@media (min-height: 500px) {
+  .modal {
+    height: 500px;
+  }
+}
+
+@media (min-height: 800px) {
+  .modal {
+    height: 800px;
+  }
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.slidecontainer {
+  width: 100%; /* Width of the outside container */
+}
+
+/* The slider itself */
+.slider {
+  -webkit-appearance: none; /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 25px; /* Specified height */
+  background: #d3d3d3; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: 0.2s; /* 0.2 seconds transition on hover */
+  transition: opacity 0.2s;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+  opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #04aa6d; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #04aa6d; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
