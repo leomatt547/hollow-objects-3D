@@ -7,7 +7,7 @@
     <div class="flex">
       <div class="sidebar">
         <div class="action">
-          <button id="load-button">Load</button>
+          <input type="file" id="load-button" name="load-button" />
         </div>
 
         <label for="">Field of View : <span id="fieldOfView-val"></span></label>
@@ -242,7 +242,7 @@
         v_color = a_color;
       }
     </script>
-    <!-- fragment shader -->
+    <!-- vertex shader -->
     <script id="fragment-shader-3d" type="x-shader/x-fragment">
       precision mediump float;
 
@@ -253,6 +253,8 @@
          gl_FragColor = v_color;
       }
     </script>
+    <pre id="output" style="font-size: 0%"></pre>
+    <script src="helper.js"></script>
     <script src="index.js"></script>
   </body>
 </html>
