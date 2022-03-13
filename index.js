@@ -474,7 +474,6 @@ function main() {
   // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = colorBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
   // Put geometry data into buffer
-  setColors(gl);
   function radToDeg(r) {
     return r * 180 / Math.PI;
   }
@@ -484,11 +483,11 @@ function main() {
   var translation = [0, 0, 0];
   var rotation = [degToRad(0), degToRad(0), degToRad(0)];
   var scale = [1, 1, 1];
-  var fieldOfViewRadians = degToRad(60);
-  var cameraAngleRadians = [degToRad(0),degToRad(0),degToRad(0)];
-  var fieldOfViewRadians = degToRad(60);
+  var fieldOfViewRadians = degToRad(90);
+  var cameraAngleRadians = [degToRad(-45),degToRad(135),degToRad(90)];
   var radiusnya = 0;
   var camRadius = 600;
+  var color = false;
 
   drawScene();
 
@@ -507,6 +506,12 @@ function main() {
     var cameraAngleY = document.getElementById("cameraAngleY");
     var cameraAngleZ = document.getElementById("cameraAngleZ");
     var cameraRadius = document.getElementById("cameraRadius");
+    //Inisialisasi
+    fieldOfViewSlider.value = fieldOfViewRadians;
+    var shadernya = document.getElementById("shadernya");
+    shadernya.oninput = function(){
+      updateColor(this);
+    }
     fieldOfViewSlider.oninput = function() {
         updateFieldOfView(this);
     }
@@ -552,6 +557,11 @@ function main() {
     //camera radian
     cameraRadius.oninput = function() {
         updateCameraRadius(this);
+    }
+
+    function updateColor(ui) {
+      color = ui.checked;
+      drawScene();
     }
 
     function updateCameraAngle(index,ui) {
@@ -600,104 +610,89 @@ function main() {
 
     // Draw the scene.
     function drawScene() {
-        resizeCanvasToDisplaySize(gl.canvas, 1);
-
-        // Tell WebGL how to convert from clip space to pixels
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-        // Clear the canvas AND the depth buffer.
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-        // Turn on culling. By default backfacing triangles
-        // will be culled.
-        gl.enable(gl.CULL_FACE);
-
-        // Enable the depth buffer
-        gl.enable(gl.DEPTH_TEST);
-
-        // Tell it to use our program (pair of shaders)
-        gl.useProgram(program);
-
-        // Turn on the position attribute
-        gl.enableVertexAttribArray(positionLocation);
-
-        // Bind the position buffer.
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-        // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-        var size = 3;          // 3 components per iteration
-        var type = gl.FLOAT;   // the data is 32bit floats
-        var normalize = false; // don't normalize the data
-        var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-        var offset = 0;        // start at the beginning of the buffer
-        gl.vertexAttribPointer(
-            positionLocation, size, type, normalize, stride, offset);
-
-        // Turn on the color attribute
-        gl.enableVertexAttribArray(colorLocation);
-
-        // Bind the color buffer.
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-
-        // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
-        var size = 3;                 // 3 components per iteration
-        var type = gl.UNSIGNED_BYTE;  // the data is 8bit unsigned values
-        var normalize = true;         // normalize the data (convert from 0-255 to 0-1)
-        var stride = 0;               // 0 = move forward size * sizeof(type) each iteration to get the next position
-        var offset = 0;               // start at the beginning of the buffer
-        gl.vertexAttribPointer(
-            colorLocation, size, type, normalize, stride, offset);
-
-        // Compute the matrix
-        //const cameraTarget = [0, 0, 0];
-        //const cameraPosition = [0, 0, 4];
-        var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-        var zNear = 1;
-        var zFar = 2000;
-        var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-
-        //const up = [0, 1, 0];
-        // Compute the camera's matrix using look at.
-        //const camera = m4.lookAt(cameraPosition, cameraTarget, up);
-
-
-        // Compute a matrix for the camera
-        var cameraMatrix = m4.xRotation(cameraAngleRadians[0]);
-        var cameraMatrix = m4.yRotate(cameraMatrix, cameraAngleRadians[1]);
-        var cameraMatrix = m4.zRotate(cameraMatrix, cameraAngleRadians[2]);
-        cameraMatrix = m4.translate(cameraMatrix, 0, 0, radiusnya + camRadius);
-        
-        // Make a view matrix from the camera matrix
-        //var viewMatrix = m4.inverse(cameraMatrix);
-        var viewMatrix = m4.inverse(cameraMatrix);
-
-        // // Make a view matrix from the camera matrix.
-        // const view = m4.inverse(camera);
-
-        // Compute a view projection matrix
-        var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
-
-        var angle = Math.PI * 2;
-        //var angle = 0
-        var x = Math.cos(angle) * radiusnya;
-        var y = Math.sin(angle) * radiusnya;
-
-        var matrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-        matrix = m4.translate(viewProjectionMatrix, x, 0, y);
-        matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
-        matrix = m4.xRotate(matrix, rotation[0]);
-        matrix = m4.yRotate(matrix, rotation[1]);
-        matrix = m4.zRotate(matrix, rotation[2]);
-        matrix = m4.scale(matrix, scale[0], scale[1], scale[2]);
-        // Set the matrix.
-        gl.uniformMatrix4fv(matrixLocation, false, matrix);
-
-        // Draw the geometry.
-        var primitiveType = gl.TRIANGLES;
-        var offset = 0;
-        //jumlah sisi yang digambar
-        var count = 64 * 6;
-        gl.drawArrays(primitiveType, offset, count);
+      resizeCanvasToDisplaySize(gl.canvas, 1);
+      // Tell WebGL how to convert from clip space to pixels
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      // Clear the canvas AND the depth buffer.
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      // Turn on culling. By default backfacing triangles
+      // will be culled.
+      gl.enable(gl.CULL_FACE);
+      // Enable the depth buffer
+      gl.enable(gl.DEPTH_TEST);
+      // Tell it to use our program (pair of shaders)
+      gl.useProgram(program);
+      if(color){
+        setColors(gl);
+      }else{
+        setColorsWhite(gl);
+      }
+      // Turn on the position attribute
+      gl.enableVertexAttribArray(positionLocation);
+      // Bind the position buffer.
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+      var size = 3;          // 3 components per iteration
+      var type = gl.FLOAT;   // the data is 32bit floats
+      var normalize = false; // don't normalize the data
+      var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+      var offset = 0;        // start at the beginning of the buffer
+      gl.vertexAttribPointer(
+          positionLocation, size, type, normalize, stride, offset);
+      // Turn on the color attribute
+      gl.enableVertexAttribArray(colorLocation);
+      // Bind the color buffer.
+      gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+      // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
+      var size = 3;                 // 3 components per iteration
+      var type = gl.UNSIGNED_BYTE;  // the data is 8bit unsigned values
+      var normalize = true;         // normalize the data (convert from 0-255 to 0-1)
+      var stride = 0;               // 0 = move forward size * sizeof(type) each iteration to get the next position
+      var offset = 0;               // start at the beginning of the buffer
+      gl.vertexAttribPointer(
+          colorLocation, size, type, normalize, stride, offset);
+      // Compute the matrix
+      //const cameraTarget = [0, 0, 0];
+      //const cameraPosition = [0, 0, 4];
+      var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+      var zNear = 1;
+      var zFar = 2000;
+      var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+      //const up = [0, 1, 0];
+      // Compute the camera's matrix using look at.
+      //const camera = m4.lookAt(cameraPosition, cameraTarget, up);
+      // Compute a matrix for the camera
+      var cameraMatrix = m4.xRotation(cameraAngleRadians[0]);
+      var cameraMatrix = m4.yRotate(cameraMatrix, cameraAngleRadians[1]);
+      var cameraMatrix = m4.zRotate(cameraMatrix, cameraAngleRadians[2]);
+      cameraMatrix = m4.translate(cameraMatrix, 0, 0, radiusnya + camRadius);
+      
+      // Make a view matrix from the camera matrix
+      //var viewMatrix = m4.inverse(cameraMatrix);
+      var viewMatrix = m4.inverse(cameraMatrix);
+      // // Make a view matrix from the camera matrix.
+      // const view = m4.inverse(camera);
+      // Compute a view projection matrix
+      var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+      var angle = Math.PI * 2;
+      //var angle = 0
+      var x = Math.cos(angle) * radiusnya;
+      var y = Math.sin(angle) * radiusnya;
+      var matrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+      matrix = m4.translate(viewProjectionMatrix, x, 0, y);
+      matrix = m4.translate(matrix, translation[0], translation[1], translation[2]);
+      matrix = m4.xRotate(matrix, rotation[0]);
+      matrix = m4.yRotate(matrix, rotation[1]);
+      matrix = m4.zRotate(matrix, rotation[2]);
+      matrix = m4.scale(matrix, scale[0], scale[1], scale[2]);
+      // Set the matrix.
+      gl.uniformMatrix4fv(matrixLocation, false, matrix);
+      // Draw the geometry.
+      var primitiveType = gl.TRIANGLES;
+      var offset = 0;
+      //jumlah sisi yang digambar
+      var count = 128 * 6;
+      gl.drawArrays(primitiveType, offset, count);
     }
 }
 
@@ -1427,368 +1422,376 @@ function setGeometry(gl) {
         80,  -80, 80,  
         -80, -80, 80, 
 
-
       ]),
       gl.STATIC_DRAW);
 }
 
 // Fill the buffer with colors for the 'F'.
 function setColors(gl) {
+  var warna = new Uint8Array([
+    // luar
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+    200,  70, 120,
+
+    // dalam
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+    160, 160, 220,
+  ]);
   gl.bufferData(
       gl.ARRAY_BUFFER,
-      new Uint8Array([
-      // luar
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
+      warna,
+      gl.STATIC_DRAW);
+}
 
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-      200,  70, 120,
-
-      // dalam
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-      160, 160, 220,
-    ]),
+function setColorsWhite(gl) {
+  var warna = new Uint8Array(2304).fill(160);
+  gl.bufferData(
+      gl.ARRAY_BUFFER,
+      warna,
       gl.STATIC_DRAW);
 }
 
