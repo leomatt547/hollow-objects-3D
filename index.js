@@ -2,7 +2,68 @@
 let MatType = Array;
 let obj = Object;
 let input = Object;
+let selected_id = Number;
 
+//Selected Button
+function toggleClass(elem,className){
+  if (elem.className.indexOf(className) !== -1){
+    elem.className = elem.className.replace(className,'');
+  }
+  else{
+    elem.className = elem.className.replace(/\s+/g,' ') + 	' ' + className;
+  }
+
+  return elem;
+}
+
+function toggleDisplay(elem){
+  const curDisplayStyle = elem.style.display;			
+
+  if (curDisplayStyle === 'none' || curDisplayStyle === ''){
+    elem.style.display = 'block';
+  }
+  else{
+    elem.style.display = 'none';
+  }
+
+}
+
+function toggleMenuDisplay(e){
+  const dropdown = e.currentTarget.parentNode;
+  const menu = dropdown.querySelector('.menu');
+  const icon = dropdown.querySelector('.fa-angle-right');
+
+  toggleClass(menu,'hide');
+  toggleClass(icon,'rotate-90');
+}
+
+function handleOptionSelected(e){
+  toggleClass(e.target.parentNode, 'hide');			
+
+  const id = e.target.id;
+  const newValue = e.target.textContent + ' ';
+  const titleElem = document.querySelector('.dropdown .title');
+  const icon = document.querySelector('.dropdown .title .fa');
+
+
+  titleElem.textContent = newValue;
+  titleElem.appendChild(icon);
+
+  //trigger custom event
+  document.querySelector('.dropdown .title').dispatchEvent(new Event('change'));
+    //setTimeout is used so transition is properly shown
+  setTimeout(() => toggleClass(icon,'rotate-90',0));
+}
+
+function handleTitleChange(e){
+  const result = document.getElementById('result');
+
+  result.innerHTML = 'Selected Model : ' + e.target.textContent;
+  selected_id = parseInt(e.target.textContent);
+}
+
+
+//load button
 document.getElementById('load-button')
   .addEventListener('change', function() {
     
@@ -32,22 +93,51 @@ function main() {
     input = JSON.parse(isi);
   }
 
+  obj = input.models;
+  selected_id = 0;
+
+  var element = document.getElementsByClassName("menu pointerCursor hide");
+  element[0].innerHTML = "";
+
+  obj.forEach(function(_, index){
+    var div = document.createElement("div");
+    div.className = "option";
+    div.innerHTML = index;
+    element[0].appendChild(div);
+  });
+  
+  //get elements
+  const dropdownTitle = document.querySelector('.dropdown .title');
+  const dropdownOptions = document.querySelectorAll('.dropdown .option');
+      
+  //bind listeners to these elements
+  dropdownTitle.addEventListener('click', toggleMenuDisplay);
+      
+  dropdownOptions.forEach(option => option.addEventListener('click',handleOptionSelected));
+      
+  document.querySelector('.dropdown .title').addEventListener('change',handleTitleChange);
+
   function init(){
-    buffer_array = new Float32Array(input.models[0].buffer);
-    color_array = new Uint8Array(input.models[0].color);
-    translation = new Float32Array(input.models[0].translation);
-    // rotation = new Array<Number>(input.models[0].rotation);
-    // for(var i=0; i<rotation.length;i++){
-    //   rotation[i] = degToRad(rotation[i]);
-    // };
-    scale  = [1,1,1];
-    rotation = [degToRad(0),degToRad(0),degToRad(0)];
+    obj = JSON.parse(isi).models;
+    // gl.useProgram(program);
     fieldOfViewRadians = degToRad(90);
     cameraAngleRadians = [degToRad(0),degToRad(0),degToRad(0)];
     radiusnya = 0;
     camRadius = 600;
-    color = false;
     viewing = 0; //0: Perspective, 1: Orto, 2: Oblique
+    //untuk setiap model
+    obj.forEach(function(object) {
+      object.buffer = new Float32Array(object.buffer);
+      object.color = new Uint8Array(object.color);
+      object.translation = new Float32Array(object.translation);
+      // rotation = new Array<Number>(object.rotation);
+      // for(var i=0; i<rotation.length;i++){
+      //   rotation[i] = degToRad(rotation[i]);
+      // };
+      object.scale  = [1,1,1];
+      object.rotation = [degToRad(0),degToRad(0),degToRad(0)];
+      object.iscolor = false;
+    });
   }
 
   init();
@@ -181,7 +271,9 @@ function main() {
   // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   // Put geometry data into buffer
-  setGeometry(gl , buffer_array);
+  obj.forEach(element => {
+    setGeometry(gl , element.buffer);
+  });
   // Create a buffer to put colors in
   var colorBuffer = gl.createBuffer();
   // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = colorBuffer)
@@ -194,276 +286,262 @@ function main() {
     return d * Math.PI / 180;
   }
 
-  var translation, 
-  rotation , 
-  scale, 
-  fieldOfViewRadians, 
+  var fieldOfViewRadians, 
   cameraAngleRadians , 
   radiusnya, 
   camRadius, 
-  color,
-  color_array,
-  viewing,
-  buffer_array;
+  viewing;
 
   drawScene();
 
   // Setup a ui.
-    var fieldOfViewSlider = document.getElementById("fieldOfView-range");
-    var xSlider = document.getElementById("x-pos-range");
-    var ySlider = document.getElementById("y-pos-range");
-    var zSlider = document.getElementById("z-pos-range");
-    var scaleX = document.getElementById("scaleX");
-    var scaleY = document.getElementById("scaleY");
-    var scaleZ = document.getElementById("scaleZ");
-    var angleX = document.getElementById("angleX");
-    var angleY = document.getElementById("angleY");
-    var angleZ = document.getElementById("angleZ");
-    var cameraAngleX = document.getElementById("cameraAngleX");
-    var cameraAngleY = document.getElementById("cameraAngleY");
-    var cameraAngleZ = document.getElementById("cameraAngleZ");
-    var cameraRadius = document.getElementById("cameraRadius");
-    var shadernya = document.getElementById("shadernya");
-    var reset = document.getElementById("reset-button");
-    var pers = document.getElementById("perspective-button");
-    var ortho = document.getElementById("ortho-button");
-    var oblique = document.getElementById("oblique-button");
-
-    //Inisialisasi
-    fieldOfViewSlider.value = fieldOfViewRadians;
-    reset.onclick = function(){
-      init();
-      drawScene()
-    }
-    pers.onclick = function(){
-      viewing = 0;
-      drawScene()
-    }
-    ortho.onclick = function(){
-      viewing = 1;
-      drawScene()
-    }
-    oblique.onclick = function(){
-      viewing = 2;
-      drawScene()
-    }
-    shadernya.oninput = function(){
-      updateColor(this);
-    }
-    fieldOfViewSlider.oninput = function() {
-        updateFieldOfView(this);
-    }
-    xSlider.oninput = function() {
-        updatePosition(0, this);
-    }
-    ySlider.oninput = function() {
-        updatePosition(1, this);
-    }
-    zSlider.oninput = function() {
-        updatePosition(2, this);
-    }
-    //Scale
-    scaleX.oninput = function() {
-        updateScale(0, this);
-    }
-    scaleY.oninput = function() {
-        updateScale(1, this);
-    }
-    scaleZ.oninput = function() {
-        updateScale(2, this);
-    }
-    //Rotation
-    angleX.oninput = function() {
-        updateRotation(0, this);
-    }
-    angleY.oninput = function() {
-        updateRotation(1, this);
-    }
-    angleZ.oninput = function() {
-        updateRotation(2, this);
-    }
-    //camera Angle
-    cameraAngleX.oninput = function() {
-        updateCameraAngle(0, this);
-    }
-    cameraAngleY.oninput = function() {
-        updateCameraAngle(1, this);
-    }
-    cameraAngleZ.oninput = function() {
-        updateCameraAngle(2, this);
-    }
-    //camera radian
-    cameraRadius.oninput = function() {
-        updateCameraRadius(this);
-    }
-
-    function reset(){
+  var fieldOfViewSlider = document.getElementById("fieldOfView-range");
+  var xSlider = document.getElementById("x-pos-range");
+  var ySlider = document.getElementById("y-pos-range");
+  var zSlider = document.getElementById("z-pos-range");
+  var scaleX = document.getElementById("scaleX");
+  var scaleY = document.getElementById("scaleY");
+  var scaleZ = document.getElementById("scaleZ");
+  var angleX = document.getElementById("angleX");
+  var angleY = document.getElementById("angleY");
+  var angleZ = document.getElementById("angleZ");
+  var cameraAngleX = document.getElementById("cameraAngleX");
+  var cameraAngleY = document.getElementById("cameraAngleY");
+  var cameraAngleZ = document.getElementById("cameraAngleZ");
+  var cameraRadius = document.getElementById("cameraRadius");
+  var shadernya = document.getElementById("shadernya");
+  var reset = document.getElementById("reset-button");
+  var pers = document.getElementById("perspective-button");
+  var ortho = document.getElementById("ortho-button");
+  var oblique = document.getElementById("oblique-button");
+  
+  //Inisialisasi
+  fieldOfViewSlider.value = fieldOfViewRadians;
+  reset.onclick = function(){
+    init();
+    drawScene()
+  }
+  pers.onclick = function(){
+    viewing = 0;
+    drawScene()
+  }
+  ortho.onclick = function(){
+    viewing = 1;
+    drawScene()
+  }
+  oblique.onclick = function(){
+    viewing = 2;
+    drawScene()
+  }
+  shadernya.oninput = function(){
+    updateColor(this);
+  }
+  fieldOfViewSlider.oninput = function() {
+      updateFieldOfView(this);
+  }
+  xSlider.oninput = function() {
+      updatePosition(0, this);
+  }
+  ySlider.oninput = function() {
+      updatePosition(1, this);
+  }
+  zSlider.oninput = function() {
+      updatePosition(2, this);
+  }
+  //Scale
+  scaleX.oninput = function() {
+      updateScale(0, this);
+  }
+  scaleY.oninput = function() {
+      updateScale(1, this);
+  }
+  scaleZ.oninput = function() {
+      updateScale(2, this);
+  }
+  //Rotation
+  angleX.oninput = function() {
+      updateRotation(0, this);
+  }
+  angleY.oninput = function() {
+      updateRotation(1, this);
+  }
+  angleZ.oninput = function() {
+      updateRotation(2, this);
+  }
+  //camera Angle
+  cameraAngleX.oninput = function() {
+      updateCameraAngle(0, this);
+  }
+  cameraAngleY.oninput = function() {
+      updateCameraAngle(1, this);
+  }
+  cameraAngleZ.oninput = function() {
+      updateCameraAngle(2, this);
+  }
+  //camera radian
+  cameraRadius.oninput = function() {
+      updateCameraRadius(this);
+  }
+  function reset(){
+    drawScene();
+  }
+  function updateColor(ui) {
+    obj[selected_id].iscolor = ui.checked;
+    drawScene();
+  }
+  function updateCameraAngle(index,ui) {
+      cameraAngleRadians[index] = degToRad(ui.value);
       drawScene();
-    }
-    function updateColor(ui) {
-      color = ui.checked;
+  }
+  function updateCameraRadius(ui) {
+    camRadius = ui.value;
+    drawScene();
+  }
+  function updateFieldOfView(ui) {
+    fieldOfViewRadians = degToRad(ui.value);
+    drawScene();
+  }
+  function updatePosition(index, ui) {
+    obj[selected_id].translation[index] = ui.value;
+    drawScene();
+  }
+  function updateRotation(index,ui) {
+      var angleInDegrees = (parseInt(ui.value));
+      var angleInRadians = angleInDegrees * Math.PI / 180;
+      obj[selected_id].rotation[index] = angleInRadians;
       drawScene();
+  }
+  function updateScale(index,ui) {
+    obj[selected_id].scale[index] = ui.value;
+    drawScene();
+  }
+  function refreshButton(index){
+    scaleX.value = obj[index].scale[0];
+    scaleY.value = obj[index].scale[1];
+    scaleZ.value = obj[index].scale[2];
+  }
+  function resizeCanvasToDisplaySize(canvas, multiplier) {
+    multiplier = multiplier || 1;
+    const width  = canvas.clientWidth  * multiplier | 0;
+    const height = canvas.clientHeight * multiplier | 0;
+    if (canvas.width !== width ||  canvas.height !== height) {
+      canvas.width  = width;
+      canvas.height = height;
+      return true;
     }
-
-    function updateCameraAngle(index,ui) {
-        cameraAngleRadians[index] = degToRad(ui.value);
-        drawScene();
-    }
-
-    function updateCameraRadius(ui) {
-      camRadius = ui.value;
-      drawScene();
-    }
-
-    function updateFieldOfView(ui) {
-      fieldOfViewRadians = degToRad(ui.value);
-      drawScene();
-    }
-
-    function updatePosition(index, ui) {
-        translation[index] = ui.value;
-        drawScene();
-    }
-
-    function updateRotation(index,ui) {
-        var angleInDegrees = (parseInt(ui.value));
-        var angleInRadians = angleInDegrees * Math.PI / 180;
-        rotation[index] = angleInRadians;
-        drawScene();
-    }
-
-    function updateScale(index,ui) {
-        scale[index] = ui.value;
-        drawScene();
-    }
-
-    function resizeCanvasToDisplaySize(canvas, multiplier) {
-      multiplier = multiplier || 1;
-      const width  = canvas.clientWidth  * multiplier | 0;
-      const height = canvas.clientHeight * multiplier | 0;
-      if (canvas.width !== width ||  canvas.height !== height) {
-        canvas.width  = width;
-        canvas.height = height;
-        return true;
-      }
-      return false;
-    }
-
-    // Draw the scene.
-    function drawScene() {
-      resizeCanvasToDisplaySize(gl.canvas, 1);
-      // Tell WebGL how to convert from clip space to pixels
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-      // Clear the canvas AND the depth buffer.
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      // Turn on culling. By default backfacing triangles
-      // will be culled.
-      gl.enable(gl.CULL_FACE);
-      // Enable the depth buffer
-      gl.enable(gl.DEPTH_TEST);
-      // Tell it to use our program (pair of shaders)
+    return false;
+  }
+  // Draw the scene.
+  function drawScene() {
+    resizeCanvasToDisplaySize(gl.canvas, 1);
+    // Tell WebGL how to convert from clip space to pixels
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    // Clear the canvas AND the depth buffer.
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    // Turn on culling. By default backfacing triangles
+    // will be culled.
+    gl.enable(gl.CULL_FACE);
+    // Enable the depth buffer
+    gl.enable(gl.DEPTH_TEST);
+    // Tell it to use our program (pair of shaders)
+    gl.useProgram(program);
+    // Turn on the position attribute
+    gl.enableVertexAttribArray(positionLocation);
+    // Bind the position buffer.
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+    var size = 3;          // 3 components per iteration
+    var type = gl.FLOAT;   // the data is 32bit floats
+    var normalize = false; // don't normalize the data
+    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+    var offset = 0;        // start at the beginning of the buffer
+    gl.vertexAttribPointer(
+        positionLocation, size, type, normalize, stride, offset);
+    // Turn on the color attribute
+    gl.enableVertexAttribArray(colorLocation);
+    // Bind the color buffer.
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
+    var size = 3;                 // 3 components per iteration
+    var type = gl.UNSIGNED_BYTE;  // the data is 8bit unsigned values
+    var normalize = true;         // normalize the data (convert from 0-255 to 0-1)
+    var stride = 0;               // 0 = move forward size * sizeof(type) each iteration to get the next position
+    var offset = 0;               // start at the beginning of the buffer
+    gl.vertexAttribPointer(
+        colorLocation, size, type, normalize, stride, offset);
+    // Compute the matrix
+    //const cameraTarget = [0, 0, 0];
+    //const cameraPosition = [0, 0, 4];
+    var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    var zNear = 1;
+    var zFar = 2000;
+    var right = gl.canvas.clientWidth;
+    var bottom = gl.canvas.clientHeight;
+    //tentukan default di sini
+    var top = -bottom/2;
+    var left = aspect*top;
+    switch(viewing){
+      case 0:
+        var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+        break;
+      case 1:
+        var projectionMatrix = m4.orthographic(left, right, bottom, top, zNear, zFar);
+        break;
+    };
+    //const up = [0, 1, 0];
+    // Compute the camera's matrix using look at.
+    //const camera = m4.lookAt(cameraPosition, cameraTarget, up);
+    // Compute a matrix for the camera
+    var cameraMatrix = m4.xRotation(cameraAngleRadians[0]);
+    cameraMatrix = m4.yRotate(cameraMatrix, cameraAngleRadians[1]);
+    cameraMatrix = m4.zRotate(cameraMatrix, cameraAngleRadians[2]);
+    cameraMatrix = m4.translate(cameraMatrix, 0, 0, radiusnya + camRadius);
+    
+    // Make a view matrix from the camera matrix
+    var viewMatrix = m4.inverse(cameraMatrix);
+    // Compute a view projection matrix
+    var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+    // Set the matrix.
+    //gl.uniformMatrix4fv(matrixLocation, false, matrix);
+    // Compute the matrices for each object.
+    // ------ Draw the objects --------
+    obj.forEach(function(object) {
       gl.useProgram(program);
-      // Turn on the position attribute
-      gl.enableVertexAttribArray(positionLocation);
-      // Bind the position buffer.
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-      // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-      var size = 3;          // 3 components per iteration
-      var type = gl.FLOAT;   // the data is 32bit floats
-      var normalize = false; // don't normalize the data
-      var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-      var offset = 0;        // start at the beginning of the buffer
-      gl.vertexAttribPointer(
-          positionLocation, size, type, normalize, stride, offset);
-      // Turn on the color attribute
-      gl.enableVertexAttribArray(colorLocation);
-      // Bind the color buffer.
-      gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-      // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
-      var size = 3;                 // 3 components per iteration
-      var type = gl.UNSIGNED_BYTE;  // the data is 8bit unsigned values
-      var normalize = true;         // normalize the data (convert from 0-255 to 0-1)
-      var stride = 0;               // 0 = move forward size * sizeof(type) each iteration to get the next position
-      var offset = 0;               // start at the beginning of the buffer
-      gl.vertexAttribPointer(
-          colorLocation, size, type, normalize, stride, offset);
-      // Compute the matrix
-      //const cameraTarget = [0, 0, 0];
-      //const cameraPosition = [0, 0, 4];
-      var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-      var zNear = 1;
-      var zFar = 2000;
-      var right = gl.canvas.clientWidth;
-      var bottom = gl.canvas.clientHeight;
-      //tentukan default di sini
-      var top = -bottom/2;
-      var left = aspect*top;
       switch(viewing){
         case 0:
-          var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+          var matrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
           break;
         case 1:
-          var projectionMatrix = m4.orthographic(left, right, bottom, top, zNear, zFar);
+          var matrix = m4.orthographic(left, right, bottom, top, zNear, zFar);
           break;
       };
-      //const up = [0, 1, 0];
-      // Compute the camera's matrix using look at.
-      //const camera = m4.lookAt(cameraPosition, cameraTarget, up);
-      // Compute a matrix for the camera
-      var cameraMatrix = m4.xRotation(cameraAngleRadians[0]);
-      cameraMatrix = m4.yRotate(cameraMatrix, cameraAngleRadians[1]);
-      cameraMatrix = m4.zRotate(cameraMatrix, cameraAngleRadians[2]);
-      cameraMatrix = m4.translate(cameraMatrix, 0, 0, radiusnya + camRadius);
-      
-      // Make a view matrix from the camera matrix
-      var viewMatrix = m4.inverse(cameraMatrix);
-      // Compute a view projection matrix
-      var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
-      // Set the matrix.
-      //gl.uniformMatrix4fv(matrixLocation, false, matrix);
-      // Compute the matrices for each object.
-
-      // ------ Draw the objects --------
-      input.models.forEach(function(object) {
-        gl.useProgram(program);
-
-        switch(viewing){
-          case 0:
-            var matrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
-            break;
-          case 1:
-            var matrix = m4.orthographic(left, right, bottom, top, zNear, zFar);
-            break;
-        };
-      
-        // // Setup all the needed attributes.
-        // gl.bindVertexArray(object.vertexArray);
-
-        if(color){
-          setColors(gl, color_array);
-        }else{
-          setColorsWhite(gl);
-        }
-
-        var uniforms = computeMatrix(
-          matrix,
-          viewProjectionMatrix,
-          translation,
-          rotation,
-          scale);
-      
-        // Set the uniforms we just computed
-        // twgl.setUniforms(programInfo, object.uniforms);
-        gl.uniformMatrix4fv(matrixLocation, false, uniforms);
-      
-        // Draw the geometry.
-        var primitiveType = gl.TRIANGLES;
-        var offset = 0;
-        //jumlah sisi yang digambar
-        var count = 128 * 6;
-        gl.drawArrays(primitiveType, offset, count);
-      });
-    }
+    
+      // // Setup all the needed attributes.
+      // gl.bindVertexArray(object.vertexArray);
+      if(object.iscolor){
+        setColors(gl, object.color);
+      }else{
+        setColorsWhite(gl);
+      }
+      var uniforms = computeMatrix(
+        matrix,
+        viewProjectionMatrix,
+        object.translation,
+        object.rotation,
+        object.scale);
+    
+      // Set the uniforms we just computed
+      // twgl.setUniforms(programInfo, object.uniforms);
+      gl.uniformMatrix4fv(matrixLocation, false, uniforms);
+    
+      // Draw the geometry.
+      var primitiveType = gl.TRIANGLES;
+      var offset = 0;
+      //jumlah sisi yang digambar
+      var count = 128 * 6;
+      gl.drawArrays(primitiveType, offset, count);
+    });
+  }
 }
 
 var m4 = {

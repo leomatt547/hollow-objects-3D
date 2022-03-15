@@ -6,8 +6,23 @@
   <body>
     <div class="flex">
       <div class="sidebar">
+        <span>File Model: </span>
         <div class="action">
           <input type="file" id="load-button" name="load-button" />
+        </div>
+        <br />
+        <span id="result">Selected Model: </span>
+        <div class="dropdown">
+          <div class="title pointerCursor">
+            Pilih Modelnya <i class="fa fa-angle-right"></i>
+          </div>
+
+          <div class="menu pointerCursor hide">
+            <!-- <div class="option" id="option1">Option 1</div>
+            <div class="option" id="option2">Option 2</div>
+            <div class="option" id="option3">Option 3</div>
+            <div class="option" id="option4">Option 4</div> -->
+          </div>
         </div>
 
         <label for="">Field of View : <span id="fieldOfView-val"></span></label>
@@ -27,8 +42,8 @@
             type="range"
             class="slider"
             name=""
-            min="-200"
-            max="200"
+            min="-1000"
+            max="1000"
             value="0"
             id="x-pos-range"
           />
@@ -37,8 +52,8 @@
             type="range"
             class="slider"
             name=""
-            min="-200"
-            max="200"
+            min="-1000"
+            max="1000"
             value="0"
             id="y-pos-range"
           />
@@ -47,8 +62,8 @@
             type="range"
             class="slider"
             name=""
-            min="-200"
-            max="200"
+            min="-1000"
+            max="1000"
             value="0"
             id="z-pos-range"
           />
