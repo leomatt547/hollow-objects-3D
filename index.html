@@ -11,30 +11,11 @@
           <input type="file" id="load-button" name="load-button" />
         </div>
         <br />
-        <span id="result">Selected Model: </span>
-        <div class="dropdown">
-          <div class="title pointerCursor">
-            Pilih Modelnya <i class="fa fa-angle-right"></i>
-          </div>
-
-          <div class="menu pointerCursor hide">
-            <!-- <div class="option" id="option1">Option 1</div>
-            <div class="option" id="option2">Option 2</div>
-            <div class="option" id="option3">Option 3</div>
-            <div class="option" id="option4">Option 4</div> -->
-          </div>
-        </div>
-
-        <label for="">Field of View : <span id="fieldOfView-val"></span></label>
-        <input
-          type="range"
-          class="slider"
-          name=""
-          min="1"
-          max="179"
-          value="1.0472"
-          id="fieldOfView-range"
-        />
+        <label for="switch">Shader<span id="cameraRadius-val"></span></label>
+        <label class="switch">
+          <input type="checkbox" id="shadernya" />
+          <span class="saklar"></span>
+        </label>
 
         <div class="position">
           <label for="">X Position : <span id="x-pos-val"></span></label>
@@ -194,42 +175,16 @@
           value="600"
           id="cameraRadius"
         />
-        <label for="switch">Shader<span id="cameraRadius-val"></span></label>
-        <label class="switch">
-          <input type="checkbox" id="shadernya" />
-          <span class="saklar"></span>
-        </label>
-
-        <!-- <input type="color" name="color-pallete" id="color-pallete" />
-        <div class="stats">
-          <table>
-            <tr>
-              <td>Mouse Position</td>
-              <td>X: <span id="x-pos"></span></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Y: <span id="y-pos"></span></td>
-            </tr>
-            <tr>
-              <td>Hovered Object Id</td>
-              <td><span id="object-id"></span></td>
-            </tr>
-            <tr>
-              <td>Selected Object Id</td>
-              <td><span id="selected-id"></span></td>
-            </tr>
-            <tr>
-              <td>Hovered Vertex Id</td>
-              <td><span id="vertex-id"></span></td>
-            </tr>
-            <tr>
-              <td>Selected Vertex Id</td>
-              <td><span id="vertex-selected-id"></span></td>
-            </tr>
-          </table>
-        </div>-->
-        <button id="help-button">HELP</button>
+        <label for="">Field of View : <span id="fieldOfView-val"></span></label>
+        <input
+          type="range"
+          class="slider"
+          name=""
+          min="1"
+          max="179"
+          value="1.0472"
+          id="fieldOfView-range"
+        />
       </div>
       <canvas id="content"></canvas>
     </div>
@@ -239,10 +194,21 @@
       <button id="perspective-button">Perspective</button>
       <button id="ortho-button">Orthographic</button>
       <button id="oblique-button">Oblique</button>
+      <button id="help-button">HELP</button>
+      <br />
+      <div>
+        <span id="result">Selected Model: </span>
+        <div class="dropdown">
+          <div class="title pointerCursor">
+            Pilih Modelnya <i class="fa fa-angle-right"></i>
+          </div>
+          <div class="menu pointerCursor hide"></div>
+        </div>
+      </div>
     </div>
     <!-- vertex shader -->
     <script id="vertex-shader-3d" type="x-shader/x-vertex">
-      attribute vec4 a_position;
+        attribute vec4 a_position;
       attribute vec4 a_color;
 
       uniform mat4 u_matrix;

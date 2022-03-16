@@ -19,9 +19,9 @@ body {
 .saklar {
   position: absolute;
   cursor: pointer;
-  top: 0;
+  top: 5;
   left: 0;
-  right: 0;
+  right: 10;
   bottom: 0;
   background-color: #ccc;
   -webkit-transition: 0.4s;
@@ -31,8 +31,8 @@ body {
 .saklar:before {
   position: absolute;
   content: "";
-  height: 26px;
-  width: 26px;
+  height: 20px;
+  width: 20px;
   left: 4px;
   bottom: 4px;
   background-color: white;
@@ -49,9 +49,9 @@ input:focus + .saklar {
 }
 
 input:checked + .saklar:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
+  -webkit-transform: translateX(20px);
+  -ms-transform: translateX(20px);
+  transform: translateX(20px);
 }
 
 button {
@@ -76,9 +76,10 @@ button {
   flex-direction: column;
   flex-basis: 20%;
 }
+
 .menu-button {
-  width: 80%;
-  display: flex;
+  width: 20%;
+  display: block;
   position: fixed;
   top: 0;
   right: 0;
@@ -86,8 +87,8 @@ button {
 }
 .menu-button button {
   flex-basis: 2;
-  margin: 10px;
-  padding: 10px 20px;
+  width: 125px;
+  padding: 10px 0px;
   background-color: #13064e;
   color: white;
   border-radius: 2px;
@@ -119,13 +120,7 @@ button {
   display: flex;
   flex-direction: column;
 }
-#help-button {
-  background-color: #13064e;
-  border-radius: 2.5px;
-  padding: 10px;
-  margin: 10px 0;
-  color: white;
-}
+
 #color-pallete {
   width: 50%;
   height: 10%;
@@ -206,7 +201,7 @@ table {
   -webkit-appearance: none; /* Override default CSS styles */
   appearance: none;
   width: 100%; /* Full-width */
-  height: 25px; /* Specified height */
+  height: 18px; /* Specified height */
   background: #d3d3d3; /* Grey background */
   outline: none; /* Remove outline */
   opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
@@ -223,15 +218,15 @@ table {
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none; /* Override default look */
   appearance: none;
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
+  width: 18px; /* Set a specific slider handle width */
+  height: 18px; /* Slider handle height */
   background: #04aa6d; /* Green background */
   cursor: pointer; /* Cursor on hover */
 }
 
 .slider::-moz-range-thumb {
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
+  width: 18px; /* Set a specific slider handle width */
+  height: 18px; /* Slider handle height */
   background: #04aa6d; /* Green background */
   cursor: pointer; /* Cursor on hover */
 }
@@ -242,7 +237,7 @@ table {
 
 .dropdown {
   border: 0.1em solid black;
-  width: 10em;
+  width: 8em;
   margin-bottom: 1em;
 }
 
