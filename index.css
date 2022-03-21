@@ -274,3 +274,11 @@ table {
 .rotate-90 {
   transform: rotate(90deg);
 }
+
+.container-help li{
+  background-color: #ccc;
+  margin-right: 25px;
+  padding-left: 10px;
+  padding-bottom: 10px;
+}
+
