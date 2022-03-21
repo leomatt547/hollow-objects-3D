@@ -546,7 +546,7 @@ function main() {
       var primitiveType = gl.TRIANGLES;
       var offset = 0;
       //jumlah sisi yang digambar
-      var count = 128 * 6;
+      var count = 120 * 6;
       gl.drawArrays(primitiveType, offset, count);
     });
   }
