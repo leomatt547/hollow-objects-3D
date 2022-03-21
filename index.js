@@ -3,6 +3,16 @@ let MatType = Array;
 let obj = Object;
 let input = Object;
 let selected_id = Number;
+let input_change = Boolean;
+
+Object.size = function(obj) {
+  var size = 0,
+    key;
+  for (key in obj) {
+    if (obj.hasOwnProperty(key)) size++;
+  }
+  return size;
+};
 
 //Selected Button
 function toggleClass(elem,className){
@@ -71,6 +81,7 @@ document.getElementById('load-button')
   fr.onload=function(){
       document.getElementById('output')
               .innerHTML=fr.result;
+      input_change = true;
       // console.log(fr.result)
       // hollow_objects();
       main();
@@ -101,16 +112,17 @@ function main() {
 
   obj = input.models;
   selected_id = 0;
+  console.log(Object.size(obj));
 
   var element = document.getElementsByClassName("menu pointerCursor hide");
   element[0].innerHTML = "";
 
-  obj.forEach(function(_, index){
+  for(var index=0; index<Object.size(obj); index++){
     var div = document.createElement("div");
     div.className = "option";
     div.innerHTML = index;
     element[0].appendChild(div);
-  });
+  }
   
   //get elements
   const dropdownTitle = document.querySelector('.dropdown .title');
@@ -123,6 +135,12 @@ function main() {
       
   document.querySelector('.dropdown .title').addEventListener('change',handleTitleChange);
 
+  var fieldOfViewRadians, 
+    cameraAngleRadians , 
+    radiusnya, 
+    camRadius, 
+    viewing;
+
   function init(){
     obj = JSON.parse(isi).models;
     // gl.useProgram(program);
@@ -132,18 +150,14 @@ function main() {
     camRadius = 600;
     viewing = 0; //0: Perspective, 1: Orto, 2: Oblique
     //untuk setiap model
-    obj.forEach(function(object) {
-      object.buffer = new Float32Array(object.buffer);
-      object.color = new Uint8Array(object.color);
-      object.translation = new Float32Array(object.translation);
-      // rotation = new Array<Number>(object.rotation);
-      // for(var i=0; i<rotation.length;i++){
-      //   rotation[i] = degToRad(rotation[i]);
-      // };
-      object.scale  = [1,1,1];
-      object.rotation = [degToRad(0),degToRad(0),degToRad(0)];
-      object.iscolor = false;
-    });
+    for(var index=0; index<Object.size(obj); index++){
+      obj[index].buffer = new Float32Array(obj[index].buffer);
+      obj[index].color = new Uint8Array(obj[index].color);
+      obj[index].translation = new Float32Array(obj[index].translation);
+      obj[index].scale  = [1,1,1];
+      obj[index].rotation = [degToRad(0),degToRad(0),degToRad(0)];
+      obj[index].iscolor = false;
+    }
   }
 
   init();
@@ -265,32 +279,6 @@ function main() {
     };
     return matrix;
   }
-  
-  var program = createProgramFromScripts(gl, ["vertex-shader-3d", "fragment-shader-3d"]);
-  // look up where the vertex data needs to go.
-  var positionLocation = gl.getAttribLocation(program, "a_position");
-  var colorLocation = gl.getAttribLocation(program, "a_color");
-  // lookup uniforms
-  var matrixLocation = gl.getUniformLocation(program, "u_matrix");
-  // Create a buffer to put positions in
-  var positionBuffer = gl.createBuffer();
-  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  // Put geometry data into buffer
-  obj.forEach(element => {
-    setGeometry(gl , element.buffer);
-  });
-  // Create a buffer to put colors in
-  var colorBuffer = gl.createBuffer();
-  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = colorBuffer)
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  // Put geometry data into buffer
-
-  var fieldOfViewRadians, 
-  cameraAngleRadians , 
-  radiusnya, 
-  camRadius, 
-  viewing;
 
   drawScene();
 
@@ -390,8 +378,8 @@ function main() {
     drawScene();
   }
   function updateCameraAngle(index,ui) {
-      cameraAngleRadians[index] = degToRad(ui.value);
-      drawScene();
+    cameraAngleRadians[index] = degToRad(ui.value);
+    drawScene();
   }
   function updateCameraRadius(ui) {
     camRadius = ui.value;
@@ -415,11 +403,6 @@ function main() {
     obj[selected_id].scale[index] = ui.value;
     drawScene();
   }
-  function refreshButton(index){
-    scaleX.value = obj[index].scale[0];
-    scaleY.value = obj[index].scale[1];
-    scaleZ.value = obj[index].scale[2];
-  }
   function resizeCanvasToDisplaySize(canvas, multiplier) {
     multiplier = multiplier || 1;
     const width  = canvas.clientWidth  * multiplier | 0;
@@ -433,45 +416,11 @@ function main() {
   }
   // Draw the scene.
   function drawScene() {
-    resizeCanvasToDisplaySize(gl.canvas, 1);
-    // Tell WebGL how to convert from clip space to pixels
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    // Clear the canvas AND the depth buffer.
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    // Turn on culling. By default backfacing triangles
-    // will be culled.
-    gl.enable(gl.CULL_FACE);
-    // Enable the depth buffer
-    gl.enable(gl.DEPTH_TEST);
-    // Tell it to use our program (pair of shaders)
-    gl.useProgram(program);
-    // Turn on the position attribute
-    gl.enableVertexAttribArray(positionLocation);
-    // Bind the position buffer.
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-    var size = 3;          // 3 components per iteration
-    var type = gl.FLOAT;   // the data is 32bit floats
-    var normalize = false; // don't normalize the data
-    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-    var offset = 0;        // start at the beginning of the buffer
-    gl.vertexAttribPointer(
-        positionLocation, size, type, normalize, stride, offset);
-    // Turn on the color attribute
-    gl.enableVertexAttribArray(colorLocation);
-    // Bind the color buffer.
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
-    var size = 3;                 // 3 components per iteration
-    var type = gl.UNSIGNED_BYTE;  // the data is 8bit unsigned values
-    var normalize = true;         // normalize the data (convert from 0-255 to 0-1)
-    var stride = 0;               // 0 = move forward size * sizeof(type) each iteration to get the next position
-    var offset = 0;               // start at the beginning of the buffer
-    gl.vertexAttribPointer(
-        colorLocation, size, type, normalize, stride, offset);
-    // Compute the matrix
-    //const cameraTarget = [0, 0, 0];
-    //const cameraPosition = [0, 0, 4];
+    if(input_change){
+      // Clear the canvas AND the depth buffer.
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      input_change = false;
+    }
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     var zNear = 1;
     var zFar = 2000;
@@ -492,25 +441,65 @@ function main() {
         var projectionMatrix = m4.multiply(oblique, m4.orthographic(left, right, bottom, top, zNear, zFar));
         break;
     };
-    //const up = [0, 1, 0];
-    // Compute the camera's matrix using look at.
-    //const camera = m4.lookAt(cameraPosition, cameraTarget, up);
-    // Compute a matrix for the camera
     var cameraMatrix = m4.xRotation(cameraAngleRadians[0]);
     cameraMatrix = m4.yRotate(cameraMatrix, cameraAngleRadians[1]);
     cameraMatrix = m4.zRotate(cameraMatrix, cameraAngleRadians[2]);
     cameraMatrix = m4.translate(cameraMatrix, 0, 0, radiusnya + camRadius);
-    
     // Make a view matrix from the camera matrix
     var viewMatrix = m4.inverse(cameraMatrix);
     // Compute a view projection matrix
     var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
-    // Set the matrix.
-    //gl.uniformMatrix4fv(matrixLocation, false, matrix);
-    // Compute the matrices for each object.
-    // ------ Draw the objects --------
-    obj.forEach(function(object) {
+    for(var index=0; index<Object.size(obj); index++){
+      var program = createProgramFromScripts(gl, ["vertex-shader-3d", "fragment-shader-3d"]);
+      // look up where the vertex data needs to go.
+      var positionLocation = gl.getAttribLocation(program, "a_position");
+      var colorLocation = gl.getAttribLocation(program, "a_color");
+      // lookup uniforms
+      var matrixLocation = gl.getUniformLocation(program, "u_matrix");
+      // Create a buffer to put positions in
+      var positionBuffer = gl.createBuffer();
+      // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      // Create a buffer to put colors in
+      var colorBuffer = gl.createBuffer();
+      // Put geometry data into buffer
+      resizeCanvasToDisplaySize(gl.canvas, 1);
+      // Tell WebGL how to convert from clip space to pixels
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      // Turn on culling. By default backfacing triangles
+      // will be culled.
+      gl.enable(gl.CULL_FACE);
+      // Enable the depth buffer
+      gl.enable(gl.DEPTH_TEST);
+      // Tell it to use our program (pair of shaders)
       gl.useProgram(program);
+      // Turn on the position attribute
+      gl.enableVertexAttribArray(positionLocation);
+      // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+      var size = 3;          // 3 components per iteration
+      var type = gl.FLOAT;   // the data is 32bit floats
+      var normalize = false; // don't normalize the data
+      var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+      var offset = 0;        // start at the beginning of the buffer
+      gl.vertexAttribPointer(
+          positionLocation, size, type, normalize, stride, offset);
+      // Put geometry data into buffer
+      setGeometry(gl, obj[index].buffer);
+      // Turn on the color attribute
+      gl.enableVertexAttribArray(colorLocation);
+      // Bind the color buffer.
+      gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+      // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
+      var size = 3;                 // 3 components per iteration
+      var type = gl.UNSIGNED_BYTE;  // the data is 8bit unsigned values
+      var normalize = true;         // normalize the data (convert from 0-255 to 0-1)
+      var stride = 0;               // 0 = move forward size * sizeof(type) each iteration to get the next position
+      var offset = 0;               // start at the beginning of the buffer
+      gl.vertexAttribPointer(
+          colorLocation, size, type, normalize, stride, offset);
+      // Set the matrix.
+      // Compute the matrices for each object.
+      // ------ Draw the objects --------
       switch(viewing){
         case 0:
           var matrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
@@ -523,32 +512,31 @@ function main() {
           var matrix = m4.multiply(oblique, m4.orthographic(left, right, bottom, top, zNear, zFar));
           break;
       };
-    
+
       // // Setup all the needed attributes.
-      // gl.bindVertexArray(object.vertexArray);
-      if(object.iscolor){
-        setColors(gl, object.color);
+      if(obj[index].iscolor){
+        setColors(gl, obj[index].color);
       }else{
         setColorsWhite(gl);
       }
       var uniforms = computeMatrix(
         matrix,
         viewProjectionMatrix,
-        object.translation,
-        object.rotation,
-        object.scale);
-    
+        obj[index].translation,
+        obj[index].rotation,
+        obj[index].scale);
+      
       // Set the uniforms we just computed
       // twgl.setUniforms(programInfo, object.uniforms);
       gl.uniformMatrix4fv(matrixLocation, false, uniforms);
-    
+      
       // Draw the geometry.
       var primitiveType = gl.TRIANGLES;
       var offset = 0;
       //jumlah sisi yang digambar
-      var count = 120 * 6;
+      var count = 128 * 6;
       gl.drawArrays(primitiveType, offset, count);
-    });
+    }
   }
 }
 
