@@ -2,9 +2,9 @@
 
 Tubes 2 Grafika Komputer 2022
 
-<hr/>
-
 ## Dibuat Oleh
+
+<hr/>
 
 1. 13519202 Farhan Yusuf Akbar
 2. 13519208 Awwala Nisa Kamila
