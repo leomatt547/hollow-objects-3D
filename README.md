@@ -2,91 +2,63 @@
 
 Tubes 2 Grafika Komputer 2022
 
-## Getting started
+<hr/>
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Dibuat Oleh
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+1. 13519202 Farhan Yusuf Akbar
+2. 13519208 Awwala Nisa Kamila
+3. 13519215 Leonard Matheus
 
-## Add your files
+<div class = "container-help">
+    <h2>I. Membuka/Load File Model</h2>
+    <hr/>
+    <ol>
+        <li><p>Pada menu sidebar 'File Model:', browse file model yang telah disiapkan</p><img src="asset/load-file-model.PNG"></li>
+        <li><p>Hasil jika file model di load akan menjadi seperti berikut.</p><img src="asset/load-hasil.PNG" width="1200px"></li>
+    </ol>
+</div>
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+<div class = "container-help">
+    <h2>II. Shading</h2>
+    <hr/>
+    <ol>
+        <li><p>Untuk memberikan warna pada model, switch menu "Shader" pada sidebar</p><img src="asset/shader.PNG"></li>
+        <li><p>Hasil jika shader diaktifkan akan menjadi seperti berikut.</p><img src="asset/shader-load.PNG" width="1200px"></li>
+    </ol>
+</div>
 
-```
-cd existing_repo
-git remote add origin https://gitlab.informatika.org/leo.matt.547/hollow-object-k04-g03.git
-git branch -M main
-git push -uf origin main
-```
+<div class = "container-help">
+    <h2>III. Mengubah jenis proyeksi</h2>
+    <hr/>
+    <ol>
+        <li><p>Untuk mengubah jenis proyeksi, pilih jenis proyeksi yang diinginkan pada menu di kanan atas web app</p><img src="asset/proyeksi-menu.PNG"></li>
+        <li><p>Hasil proyeksi perspective</p><img src="asset/proyeksi-perspective.PNG" width="1200px"></li>
+        <li><p>Hasil proyeksi orthographic</p><img src="asset/proyeksi-orthographic.PNG" width="1200px"></li>
+        <li><p>Hasil proyeksi oblique</p><img src="asset/proyeksi-oblique.PNG" width="1200px"></li>
+    </ol>
+</div>
 
-## Integrate with your tools
+<div class = "container-help">
+    <h2>IV. Rotation, Translation, Scaling</h2>
+    <hr/>
+    <ol>
+        <li><p>Untuk melakukan rotasi, translasi, scaling pada model, geser slider yang ada pada sidebar</p><img src="asset/transformation.PNG"></li>
+    </ol>
+</div>
 
-- [ ] [Set up project integrations](https://gitlab.informatika.org/leo.matt.547/hollow-object-k04-g03/-/settings/integrations)
+<div class = "container-help">
+    <h2>V. Mengubah Jarak (Radius) Kamera View</h2>
+    <hr/>
+    <ol>
+        <li><p> Untuk mengubah jarak kamera view untuk mendekat atau menjauh dari model, geser slider yang ada sidebar</p><img src="asset/camera.PNG"></li>
+    </ol>
+</div>
 
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+<div class = "container-help">
+    <h2>VI. Reset</h2>
+    <hr/>
+    <ol>
+        <li><p> Untuk reset semua konfigurasi yang dilakukan pada model, tekan tombol 'Reset' pada menu bagian kanan atas web app</p><img src="asset/proyeksi-menu.PNG"></li>
+    </ol>
+</div>
